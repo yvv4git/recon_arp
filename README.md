@@ -8,3 +8,5 @@ How use:
 make
 
 sudo ./scan.bin -iface enp2s0
+
+![screenshot of sample](https://github.com/yvv4git/recon_arp/blob/master/about.png)
