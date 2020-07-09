@@ -25,35 +25,42 @@ func main() {
 
 	log.Println("Interface name: ", *ifaceName)
 
-	var ipV4Net *net.IPNet
-	var ipv4Addresses []net.IP
+	var srcIP net.IP
+	var netAddress *net.IPNet
+	var ipv4AddressesList []net.IP
 
-	// init arp package
-	arpSender := arp.NewArpSender()
-	arpSender.SetIface(*ifaceName)
-	ipV4Net = arpSender.GetIpV4Net()
-	log.Println("IPv4 net:", ipV4Net)
+	// init iface
+	iface, err := net.InterfaceByName(*ifaceName)
+	if nil != err {
+		panic("Don't find interface.")
+	}
 
-	// calculate ipv4 addresses list
-	ipv4Addresses, err := ipv4_address.GetIPv4AddressesFromNet(ipV4Net)
+	// calculate ipv4 list and options
+	srcIP = ipv4_address.GetIpv4FromIface(iface)
+	netAddress = ipv4_address.GetNetworkAddressFromIface(iface)
+	ipv4AddressesList, err = ipv4_address.GetIPv4AddressesFromNet(netAddress)
 	if nil != err {
 		panic("IP address is not ipv4 address")
 	}
 
-	// open device
+	// init and setup arp package sender
+	arpSender := arp.NewArpSender()
+	arpSender.SetIface(iface)
+	arpSender.SetSrcIp(srcIP)
+
+	// open device for sniffing channel
 	handle, err := pcap.OpenLive(*ifaceName, 65536, true, pcap.BlockForever)
 	if err != nil {
 		panic(err)
 	}
 	defer handle.Close()
 
-	// sniff
-	go readPackages(handle, arpSender.GetIface())
+	// sniffing and analyse
+	go readPackages(handle, iface)
 
-	// send arp request for every ip address
-	for _, ipv4Addres := range ipv4Addresses {
-		arpSender.SetDstIpV4(ipv4Addres)
-
+	// send arp request for every ip address in subnet
+	for _, ipv4Addres := range ipv4AddressesList {
+		arpSender.SetDstIp(ipv4Addres)
 		arpPackage := arpSender.GenerateArpPackage()
 
 		// send arp package
