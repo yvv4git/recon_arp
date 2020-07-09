@@ -48,7 +48,7 @@ func main() {
 	defer handle.Close()
 
 	// sniff
-	go readARP(handle, arpSender.GetIface())
+	go readPackages(handle, arpSender.GetIface())
 
 	// send arp request for every ip address
 	for _, ipv4Addres := range ipv4Addresses {
@@ -63,7 +63,7 @@ func main() {
 	}
 }
 
-func readARP(handle *pcap.Handle, iface *net.Interface) {
+func readPackages(handle *pcap.Handle, iface *net.Interface) {
 	src := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
 	in := src.Packets()
 	for {
