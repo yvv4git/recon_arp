@@ -77,7 +77,7 @@ func readPackages(handle *pcap.Handle, iface *net.Interface) {
 		select {
 		case packet, status := <-in:
 			if !status {
-				// канал закрыт, выходим из функции
+				// sniff channel is closed
 				return
 			}
 
@@ -88,7 +88,7 @@ func readPackages(handle *pcap.Handle, iface *net.Interface) {
 
 			arp := arpLayer.(*layers.ARP)
 			if arp.Operation != layers.ARPReply {
-				// это скорее всего мой пакет, ибо мне нужны только ответы
+				// we want only arp replay packets
 				continue
 			}
 
