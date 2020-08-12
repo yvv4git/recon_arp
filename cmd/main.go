@@ -8,8 +8,8 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"github.com/yvv4git/goexamples/net/arp/send_arp/arp"
-	"github.com/yvv4git/goexamples/net/ipv4_address"
+	"github.com/yvv4git/gocode/net/arp/send_arp/arp"
+	"github.com/yvv4git/gocode/net/ipv4_address"
 )
 
 // Use:
